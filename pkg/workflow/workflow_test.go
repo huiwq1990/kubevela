@@ -625,7 +625,7 @@ var _ = Describe("Test Workflow", func() {
 			AppRevision: app.Status.Workflow.AppRevision,
 			Mode:        common.WorkflowModeStep,
 			Terminated:  true,
-			Message:     string(MessageTerminatedFailedAfterRetries),
+			Message:     MessageTerminatedFailedAfterRetries,
 			Steps: []common.WorkflowStepStatus{{
 				StepStatus: common.StepStatus{
 					Name:   "s1",
@@ -709,7 +709,7 @@ var _ = Describe("Test Workflow", func() {
 			AppRevision: app.Status.Workflow.AppRevision,
 			Mode:        common.WorkflowModeStep,
 			Terminated:  true,
-			Message:     string(MessageTerminatedFailedAfterRetries),
+			Message:     MessageTerminatedFailedAfterRetries,
 			Steps: []common.WorkflowStepStatus{{
 				StepStatus: common.StepStatus{
 					Name:   "s1",
@@ -1373,7 +1373,7 @@ var _ = Describe("Test Workflow", func() {
 			AppRevision: app.Status.Workflow.AppRevision,
 			Mode:        common.WorkflowModeStep,
 			Terminated:  true,
-			Message:     string(MessageTerminatedFailedAfterRetries),
+			Message:     MessageTerminatedFailedAfterRetries,
 			Steps: []common.WorkflowStepStatus{{
 				StepStatus: common.StepStatus{
 					Name:  "s1",
