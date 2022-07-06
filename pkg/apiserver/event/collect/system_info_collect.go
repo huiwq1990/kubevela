@@ -21,6 +21,9 @@ import (
 	"sort"
 	"time"
 
+	prismclusterv1alpha1 "github.com/kubevela/prism/pkg/apis/cluster/v1alpha1"
+	"github.com/pkg/errors"
+
 	client2 "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/oam-dev/kubevela/apis/core.oam.dev/common"
@@ -28,10 +31,8 @@ import (
 	"github.com/oam-dev/kubevela/apis/types"
 	"github.com/oam-dev/kubevela/pkg/oam"
 
-	"github.com/oam-dev/kubevela/pkg/apiserver/infrastructure/clients"
-	"github.com/oam-dev/kubevela/pkg/multicluster"
-
 	"github.com/oam-dev/kubevela/pkg/apiserver/domain/model"
+	"github.com/oam-dev/kubevela/pkg/apiserver/infrastructure/clients"
 	"github.com/oam-dev/kubevela/pkg/apiserver/infrastructure/datastore"
 	"github.com/oam-dev/kubevela/pkg/apiserver/utils/log"
 
@@ -261,11 +262,14 @@ func (i InfoCalculateCronJob) calculateClusterInfo(ctx context.Context) (int, er
 	if err != nil {
 		return 0, err
 	}
-	cs, err := multicluster.ListVirtualClusters(ctx, client)
+	cs, err := prismclusterv1alpha1.NewClusterClient(client).List(ctx)
+	if err != nil {
+		return 0, errors.Wrap(err, "fail to get registered cluster")
+	}
 	if err != nil {
 		return 0, err
 	}
-	return len(cs), nil
+	return len(cs.Items), nil
 }
 
 type defPair struct {

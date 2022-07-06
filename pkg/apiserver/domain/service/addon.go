@@ -26,6 +26,10 @@ import (
 	"sync"
 	"time"
 
+	gerrors "github.com/pkg/errors"
+
+	prismclusterv1alpha1 "github.com/kubevela/prism/pkg/apis/cluster/v1alpha1"
+
 	v1 "k8s.io/api/core/v1"
 	errors2 "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -44,7 +48,6 @@ import (
 	"github.com/oam-dev/kubevela/pkg/apiserver/utils"
 	"github.com/oam-dev/kubevela/pkg/apiserver/utils/bcode"
 	"github.com/oam-dev/kubevela/pkg/apiserver/utils/log"
-	"github.com/oam-dev/kubevela/pkg/multicluster"
 	"github.com/oam-dev/kubevela/pkg/oam"
 	addonutil "github.com/oam-dev/kubevela/pkg/utils/addon"
 	"github.com/oam-dev/kubevela/pkg/utils/apply"
@@ -188,13 +191,12 @@ func (u *addonServiceImpl) StatusAddon(ctx context.Context, name string) (*apis.
 		return nil, bcode.ErrGetAddonApplication
 	}
 	var allClusters []apis.NameAlias
-	clusters, err := multicluster.ListVirtualClusters(ctx, u.kubeClient)
+	clusters, err := prismclusterv1alpha1.NewClusterClient(u.kubeClient).List(ctx)
 	if err != nil {
-		log.Logger.Errorf("err while list all clusters: %v", err)
+		return nil, gerrors.Wrap(err, "fail to get registered cluster")
 	}
-
-	for _, c := range clusters {
-		allClusters = append(allClusters, apis.NameAlias{Name: c.Name, Alias: c.Name})
+	for _, c := range clusters.Items {
+		allClusters = append(allClusters, apis.NameAlias{Name: c.Name, Alias: c.Spec.Alias})
 	}
 	if status.AddonPhase == string(apis.AddonPhaseDisabled) {
 		return &apis.AddonStatusResponse{

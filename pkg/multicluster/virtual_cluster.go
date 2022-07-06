@@ -266,12 +266,13 @@ func NewClusterNameMapper(ctx context.Context, c client.Client) (ClusterNameMapp
 	} else if err != nil && !meta.IsNoMatchError(err) && !runtime.IsNotRegisteredError(err) {
 		return nil, err
 	}
-	vcs, err := ListVirtualClusters(ctx, c)
+
+	clusters, err := prismclusterv1alpha1.NewClusterClient(c).List(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "fail to get registered cluster")
 	}
-	for _, cluster := range vcs {
-		cm[cluster.Name] = cluster.Alias
+	for _, cluster := range clusters.Items {
+		cm[cluster.Name] = cluster.Spec.Alias
 	}
 	return cm, nil
 }

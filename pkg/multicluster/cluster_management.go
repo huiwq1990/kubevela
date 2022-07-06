@@ -182,13 +182,12 @@ func (clusterConfig *KubeClusterConfig) RegisterClusterManagedByOCM(ctx context.
 		return err
 	}
 
-	clusters, err := ListVirtualClusters(context.Background(), hubCluster.Client)
+	clusters, err := prismclusterv1alpha1.NewClusterClient(cli).List(ctx)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "fail to get registered cluster")
 	}
-
-	for _, cluster := range clusters {
-		if cluster.Name == clusterConfig.ClusterName && cluster.Accepted {
+	for _, cluster := range clusters.Items {
+		if cluster.Name == clusterConfig.ClusterName && cluster.Spec.Accepted {
 			return errors.Errorf("you have register a cluster named %s", clusterConfig.ClusterName)
 		}
 	}
